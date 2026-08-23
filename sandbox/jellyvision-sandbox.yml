@@ -1,0 +1,72 @@
+generated: '2026-08-23'
+method: searched
+source: https://partner-api-docs.myalex.com/
+docs: https://partner-api-docs.myalex.com/
+summary: >-
+  Jellyvision ships a genuine two-environment model rather than a test-mode flag: a separate
+  pre-production ALEX host with its own Auth0 tenant and its own issued credential pair. There is no
+  self-service sandbox — both credential sets are provisioned by Jellyvision during partner
+  onboarding — and no published test fixtures, magic identifiers or seeded data.
+mode_model:
+  style: separate-environment
+  test_mode_flag: null
+  key_prefixes_published: false
+  detail: >-
+    Two API keys are issued, one per environment. They are not distinguished by prefix; they are
+    distinguished by which token endpoint mints them. A credential minted at login.jellydevs.com is
+    a pre-production credential; one minted at login.myalex.com is production.
+environments:
+- name: Pre-production
+  role: sandbox
+  api_url: https://qa.myalex.com
+  saml_target_value: https://qa.myalex.com
+  token_endpoint: https://login.jellydevs.com/oauth/token
+  oidc_discovery: https://login.jellydevs.com/.well-known/openid-configuration
+  oidc_discovery_status: 200
+  description: >-
+    The pre-production environment used for initial testing and development, per the ALEX targets
+    and environments table in the appendix.
+- name: Production
+  role: live
+  api_url: https://www.myalex.com
+  saml_target_value: https://www.myalex.com
+  token_endpoint: https://login.myalex.com/oauth/token
+  oidc_discovery: https://login.myalex.com/.well-known/openid-configuration
+  oidc_discovery_status: 200
+  description: The live environment actual end users interact with.
+published_test_values:
+  note: >-
+    The reference uses illustrative placeholders throughout its curl samples — Partner-Id
+    "test-partner", Partner-Client-Id "test-client", Product-Key "2020"/"2025", and a
+    "meowmeowmeow" stand-in Authorization value. These are documentation placeholders, NOT working
+    test credentials, and are recorded here only so an integrator does not mistake them for issued
+    values. No functioning test identifiers, seeded users or fixture plans are published.
+  placeholders:
+  - header: Partner-Id
+    placeholder: test-partner
+  - header: Partner-Client-Id
+    placeholder: test-client
+  - header: Product-Key
+    placeholder: '2025'
+test_certificate_generation:
+  note: >-
+    The SSO section publishes the exact openssl invocations a partner runs to produce the x509
+    RSA-SHA256 signing certificate for each environment, from a 4096-bit key with a 1825-day validity.
+  commands:
+  - openssl genrsa -out test-partner.key 4096
+  - openssl req -new -key test-partner.key -out test-partner.csr
+  - openssl x509 -req -days 1825 -in test-partner.csr -signkey test-partner.key -out test-partner.crt
+test_clocks:
+  supported: false
+time_simulation:
+  supported: false
+  note: >-
+    Plan year is selected by the Product-Key header rather than by clock, so a partner tests a future
+    or prior plan year by using the Product-Key Jellyvision issued for it.
+fixtures_or_triggers:
+  published: false
+self_service:
+  available: false
+  detail: >-
+    Both environments require credentials issued by Jellyvision. There is no signup form for the
+    Partner Integration API; the public entry point is https://www.jellyvision.com/get-a-demo/.

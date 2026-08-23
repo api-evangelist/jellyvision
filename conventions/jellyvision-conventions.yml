@@ -1,0 +1,141 @@
+generated: '2026-08-23'
+method: searched
+source: https://partner-api-docs.myalex.com/
+docs: https://partner-api-docs.myalex.com/
+summary: >-
+  A small, partner-scoped REST surface. Identity is carried entirely in headers — a bearer JWT plus
+  three partner/customer/user IDs and a plan-year product key — rather than in the path, so the same
+  three endpoints serve every partner, customer and end user. Versioning is header-negotiated. There
+  is no pagination, no filtering, no expansion and no collection listing anywhere in the API.
+auth_style:
+  scheme: OAuth 2.0 client credentials -> bearer JWT
+  header: 'Authorization: Bearer <jwt>'
+  cross_reference: authentication/jellyvision-authentication.yml
+identity_headers:
+  note: >-
+    The resource being acted on is addressed by header, not by path. All three IDs are required on
+    every call in addition to the plan-year Product-Key.
+  headers:
+  - Partner-Id
+  - Partner-Client-Id
+  - Partner-User-Id
+  - Product-Key
+versioning:
+  style: header
+  header: Accept-Version
+  current: v1
+  default_when_omitted: v1
+  note: >-
+    The published reference is titled "V1 API Reference". No deprecated version, sunset date or
+    version history is published.
+  cross_reference: lifecycle/jellyvision-lifecycle.yml
+idempotency:
+  supported: partial
+  idempotency_key_header: null
+  detail: >-
+    No Idempotency-Key header and no request-replay mechanism is documented. POST /api/partner/user is
+    nevertheless an explicit natural-key upsert — the docs state that if no user exists for the
+    supplied Partner-Id, Partner-Client-Id and Partner-User-Id the user is created, otherwise the
+    record is updated — so repeating an identical user POST converges rather than duplicating. POST
+    /api/partner/session is NOT idempotent: each call establishes a new ALEX Session for the visit,
+    and the docs describe sessions as per-visit by design.
+  safe_to_retry:
+  - operation: POST /api/partner/user
+    reason: documented create-or-update on the natural key
+  - operation: GET /api/partner/user/selections
+    reason: read-only
+  unsafe_to_retry:
+  - operation: POST /api/partner/session
+    reason: creates a new session per call
+pagination:
+  supported: false
+  detail: >-
+    No endpoint returns a collection that is paged. GET /api/partner/user/selections returns the full
+    plans[] and contributions[] arrays for one end user in a single response.
+filtering_and_expansion:
+  supported: false
+  detail: No query parameters, sparse-fieldset, expansion or sorting are documented on any endpoint.
+metadata:
+  supported: true
+  mechanism: custom
+  detail: >-
+    Arbitrary partner-defined key/value pairs are passed in the custom[] array on POST
+    /api/partner/user, e.g. [{"DISC":"OPTIN"},{"POS":"DRIVER"},{"LOC":"CHI101"}]. Keys that cannot be
+    mapped to a configured property return a warning and are ignored. Custom parameters have no effect
+    unless they are required to determine eligibility. A separate externalParameters concept
+    (businessUnit) exists for analytics and is enabled at Jellyvision's discretion.
+request_tracing:
+  supported: true
+  field: requestId
+  location: response body
+  detail: >-
+    Every response — success, warning and error — carries a requestId string. There is no
+    X-Request-Id request header documented, so the identifier is server-minted and read-only.
+error_envelope:
+  format: custom (not RFC 9457)
+  cross_reference: errors/jellyvision-problem-types.yml
+  fields: [userId, requestId, success, warnings, errors]
+rate_limit_signaling:
+  headers_published: false
+  detail: >-
+    No RateLimit-*, X-RateLimit-* or Retry-After header is documented, and no numeric limit is
+    published. The docs state only that requesting an access token on every API call will cause rate
+    limiting errors.
+  cross_reference: rate-limits/jellyvision-rate-limits.yml
+content_type:
+  request: application/json
+  response: application/json
+data_conventions:
+  dates: ISO 8601 (both 1983-06-25 and 1983-06-25T00:00:00+00:00 accepted)
+  currency: >-
+    Bare numbers, no currency field. Premium and employer-contribution tier amounts are always
+    ANNUALIZED; deductionsPerYear on each benefit object states how many payroll deductions the
+    annual figure is spread across.
+  omission_semantics: >-
+    Load-bearing and dangerous. On POST /api/partner/session an empty object must be passed for a
+    benefit the user is ineligible for. Omitting the medical, dental, vision or taxSavings object
+    entirely is documented to cause "unintended consequences to a user's eligibility for that
+    benefit" — absence does not mean ineligible, it means unspecified.
+  coverage_tiers: >-
+    Coverage is expressed as a tier code (10..90) under one of seven tierCoverageTypeId shapes, never
+    as a dependent count. See data-model/jellyvision-data-model.yml for the full code table.
+  privacy_by_design: >-
+    The API deliberately exposes coverage TIERS rather than the exact number of covered dependents,
+    and states that any supplied parameter not required for eligibility or recommendation will not be
+    used by the product.
+reversibility:
+  applicable: true
+  grade: undocumented
+  detail: >-
+    The API has a write surface (two POST endpoints) but publishes no reversal operation of any kind —
+    there is no DELETE, no cancel, no void, no undo, no session invalidation and no user-record
+    removal endpoint in the V1 reference, and no retention or correction window is stated anywhere in
+    the docs. The only correction path available to an agent is to re-POST /api/partner/user with
+    corrected values, which overwrites the record in place; that is a forward correction, not a
+    reversal, and it cannot restore a previous state because no prior version is exposed.
+  write_surfaces:
+  - operation: POST /api/partner/user
+    reversal: none published
+    forward_correction: >-
+      Re-POST the same natural key with corrected values. Overwrites in place. Note that several
+      internal parameters (salary, eligiblePay, stateProvince, fullTimeStatus, birthDate, spouseType,
+      spouseBirthDate, custom) are documented as NOT user-editable once populated via the API, so a
+      wrong value written by a partner cannot be corrected by the end user inside ALEX.
+    window: null
+  - operation: POST /api/partner/session
+    reversal: none published
+    forward_correction: Create a subsequent session with corrected eligibility and plan data.
+    window: null
+  read_surfaces:
+  - operation: GET /api/partner/user/selections
+    note: Read-only; nothing to reverse.
+  agent_guidance: >-
+    Treat both POST endpoints as one-way for planning purposes. Validate salary, birth date, postal
+    code and spouse fields before writing, because a bad write is not user-correctable and no
+    rollback is offered.
+dry_run_mode:
+  supported: false
+  detail: >-
+    No dry-run, validate-only or preview flag is documented. The pre-production environment
+    (qa.myalex.com with login.jellydevs.com credentials) is the published rehearsal mechanism.
+  cross_reference: sandbox/jellyvision-sandbox.yml

@@ -1,0 +1,106 @@
+generated: '2026-08-23'
+method: searched
+source: live probes of every apis.yml host, the ALEX auth hosts named in the Partner Integration API docs, and the docs host
+note: >-
+  Five documents were served and saved. www.jellyvision.com publishes RFC 8414 authorization-server
+  metadata and RFC 9728 protected-resource metadata that together advertise an OAuth-protected MCP
+  server on the marketing site (scope "mcp"). login.myalex.com and login.jellydevs.com are the Auth0
+  tenants the ALEX Partner Integration API docs name as the production and pre-production token
+  endpoints; both serve full OIDC discovery anonymously. No security.txt, api-catalog or ai-plugin.json
+  is served on any host, and no agent card was found on any host or path.
+hit_count: 5
+hosts:
+- host: https://www.jellyvision.com
+  documents:
+  - path: /.well-known/oauth-authorization-server
+    status: 200
+    file: jellyvision-oauth-authorization-server.json
+  - path: /.well-known/oauth-protected-resource
+    status: 200
+    file: jellyvision-oauth-protected-resource.json
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+- host: https://login.myalex.com
+  documents:
+  - path: /.well-known/openid-configuration
+    status: 200
+    file: jellyvision-openid-configuration.json
+  - path: /.well-known/oauth-authorization-server
+    status: 200
+    file: jellyvision-openid-configuration.json
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+- host: https://login.jellydevs.com
+  documents:
+  - path: /.well-known/openid-configuration
+    status: 200
+    file: jellyvision-jellydevs-openid-configuration.json
+  - path: /.well-known/oauth-authorization-server
+    status: 200
+    file: jellyvision-jellydevs-openid-configuration.json
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+- host: https://www.myalex.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+- host: https://qa.myalex.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+- host: https://partner-api-docs.myalex.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404

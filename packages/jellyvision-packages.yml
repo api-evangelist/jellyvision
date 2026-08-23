@@ -1,0 +1,109 @@
+generated: '2026-08-23'
+method: searched
+source: >-
+  registry.npmjs.org, pypi.org, rubygems.org, crates.io, api.nuget.org, search.maven.org,
+  proxy.golang.org, github.com/jellyvision, and https://partner-api-docs.myalex.com/
+headline_finding: >-
+  Jellyvision publishes NO client library for the ALEX Partner Integration API in any language. The
+  V1 API Reference documents raw curl only and links no SDK. Everything Jellyvision has published to
+  a public registry is internal front-end framework or build tooling from 2016-2017, all of it under
+  the shared "jellyops" npm account or the @jellyvision scope, and none of it wraps the API. No
+  SDKs pointer is emitted in apis.yml because no API client library exists to point at.
+sdk_count: 0
+official_package_count: 4
+registries_probed:
+- registry: npm
+  result: 4 first-party packages found, none an API client
+- registry: pypi
+  result: no jellyvision or myalex package (HTTP 404)
+- registry: rubygems
+  result: no first-party package found
+- registry: crates.io
+  result: no first-party package found
+- registry: nuget
+  result: no first-party package found
+- registry: maven-central
+  result: no first-party package found
+- registry: pkg.go.dev
+  result: no first-party module found
+packages:
+- language: javascript
+  registry: npm
+  name: '@jellyvision/eslint-config-jellyvision'
+  url: https://www.npmjs.com/package/@jellyvision/eslint-config-jellyvision
+  install: npm install @jellyvision/eslint-config-jellyvision
+  official: true
+  official_basis: >-
+    Published under the @jellyvision npm scope and maintained by the company's engineering roster;
+    repository field points at the internal stash.jellyvision.com Bitbucket server.
+  category: lint-config
+  api_client: false
+  version: 1.2.0
+  published: '2017-04-20'
+  note: >-
+    ESLint configuration for Jellyvision's internal JavaScript style. Not an API client. Last
+    published 2017-04-20 — over nine years stale.
+- language: javascript
+  registry: npm
+  name: lateralus
+  url: https://www.npmjs.com/package/lateralus
+  install: npm install lateralus
+  official: true
+  official_basis: Published by the jellyops npm account; repository github.com/jellyvision/lateralus.
+  category: ui-framework
+  api_client: false
+  version: 1.1.0
+  published: '2017-05-26'
+  note: >-
+    A UI component framework Jellyvision open-sourced. Not an API client. The GitHub repository
+    received commits as recently as 2024-08-08 but no npm release since 2017-05-26, so the published
+    artifact is nine years behind the source.
+- language: javascript
+  registry: npm
+  name: lateralus-components
+  url: https://www.npmjs.com/package/lateralus-components
+  install: npm install lateralus-components
+  official: true
+  official_basis: Published by the jellyops npm account; repository github.com/Jellyvision/lateralus-components.
+  category: ui-components
+  api_client: false
+  version: 0.0.9
+  published: '2016-04-28'
+  note: >-
+    General-use components for Lateralus. Not an API client. Still pre-1.0 after a decade; repository
+    last pushed 2024-12-11 with no corresponding release.
+- language: javascript
+  registry: npm
+  name: jsdoc-mermaid
+  url: https://www.npmjs.com/package/jsdoc-mermaid
+  install: npm install jsdoc-mermaid
+  official: true
+  official_basis: Published by the jellyops npm account; sourced from github.com/jellyvision/jsdoc-mermaid.
+  category: developer-tooling
+  api_client: false
+  version: 1.0.0
+  published: '2017-10-06'
+  note: Generates flowcharts and diagrams inside jsdoc comments. Not an API client.
+related_but_unattributed:
+- language: javascript
+  registry: npm
+  name: alex-sign-on
+  url: https://www.npmjs.com/package/alex-sign-on
+  official: false
+  official_basis: >-
+    Describes itself as wrapping @auth0/auth0-spa-js "with Jellyvision's IdP configurations", which
+    matches the real ALEX Auth0 tenants, but it is published from a personal npm account (zherr),
+    is unscoped, declares no repository or homepage, and is not referenced from any Jellyvision
+    documentation. Recorded as a lead, NOT credited as a first-party SDK.
+  api_client: false
+  version: 0.0.3
+  published: '2020-03-06'
+  note: Single version ever published, 2020-03-06. Abandoned.
+github_organization:
+  url: https://github.com/jellyvision
+  public_repo_count: 23
+  note: >-
+    23 public repositories, all internal tooling, UI framework, Jenkins and dotfiles work. The most
+    recently pushed are lateralus-components (2024-12-11) and lateralus (2024-08-08); the rest were
+    last touched between 2014 and 2020. No repository contains an OpenAPI definition, an API client,
+    or anything relating to the ALEX Partner Integration API.

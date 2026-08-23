@@ -1,23 +1,145 @@
 aid: jellyvision
-name: JellyVision
-description: 'JellyVision is a company surfaced via the API Evangelist harvest backlog (source: secondary-market)
-  and added to the network as a stub for full-pipeline profiling.'
+name: Jellyvision
+description: >-
+  Jellyvision (The Jellyvision Lab, Inc.) is a Chicago-based employee benefits engagement company
+  and the maker of ALEX, a benefits decision-support, communication and administration platform used
+  by employers, brokers and carriers to guide employees through medical, dental, vision, retirement,
+  HSA/FSA and voluntary benefit choices. Its developer surface is the ALEX Partner Integration API — a
+  partner-facing REST API documented publicly at partner-api-docs.myalex.com that lets benefits
+  administration and enrollment platforms pre-populate end-user demographic and eligibility data,
+  push per-plan premium and employer healthfund contribution tiers into an ALEX Session, and read
+  back the medical, dental, vision, HSA and FSA selections a user made inside the ALEX experience.
+  Authentication is OAuth 2.0 client credentials against an Auth0 tenant plus SAML 2.0 IdP-initiated
+  single sign-on for the end-user experience.
 url: https://raw.githubusercontent.com/api-evangelist/jellyvision/refs/heads/main/apis.yml
+image: https://www.jellyvision.com/wp-content/uploads/2023/12/Jellyvision_Generic.jpg
 x-type: company
 x-source: harvest:secondary-market
-x-tier: stub
-x-tier-reason: harvest
 specificationVersion: '0.20'
 created: '2026-08-23'
 modified: '2026-08-23'
 tags:
 - Company
-apis: []
+- Employee Benefits
+- Human Resources
+- Benefits Administration
+- Benefits Enrollment
+- Health Insurance
+- Decision Support
+- HR Technology
+- Insurance
+- Employee Engagement
+apis:
+- aid: jellyvision:alex-partner-integration-api
+  name: ALEX Partner Integration API
+  description: >-
+    The ALEX Partner Integration API lets a Jellyvision partner — typically a benefits administration
+    or enrollment platform — streamline and personalize the ALEX experience for its end users. Partners
+    POST end-user demographic data (salary, eligible pay, postal code, state, full-time status, birth
+    date, spouse type and birth date, plus optional expat, hire date, hours worked and dependent counts)
+    to pre-answer eligibility questions; POST an ALEX Session carrying the medical, dental, vision and
+    tax-savings plans a user is eligible for along with annualized premium tiers, employer healthfund
+    contribution tiers and payroll deductions per year; and GET back the plan selections, coverage
+    premium tiers and HSA/FSA contribution amounts the user chose inside ALEX. Custom and external
+    partner-defined parameters are supported at Jellyvision's discretion.
+  humanURL: https://partner-api-docs.myalex.com/
+  baseURL: https://www.myalex.com
+  x-base-url-note: >-
+    Provider-stated, not inferred. The 'ALEX targets and environments' table in the appendix of the
+    V1 API Reference publishes a column literally headed 'API url' whose Production value is
+    https://www.myalex.com (Pre-production: https://qa.myalex.com). repair-api-bases.py flags this
+    host as 'docs-host' on a www.* heuristic, which is a false positive here: www.myalex.com is the
+    ALEX application host and the documented API host, and the reference's curl samples use
+    example.com placeholders rather than naming a host inline. api.myalex.com also resolves (to
+    api-production.jellysecure.com, returning API-Gateway-shaped JSON) but is named nowhere in the
+    docs and returns HTTP 404 on /api/partner/user, so it was NOT adopted as the base.
+  tags:
+  - Employee Benefits
+  - Benefits Enrollment
+  - Eligibility
+  - Decision Support
+  - Human Resources
+  properties:
+  - type: Documentation
+    url: https://partner-api-docs.myalex.com/
+  - type: APIReference
+    url: https://partner-api-docs.myalex.com/
+  - type: Authentication
+    url: authentication/jellyvision-authentication.yml
+  - type: OAuthScopes
+    url: scopes/jellyvision-scopes.yml
+  - type: ErrorCatalog
+    url: errors/jellyvision-problem-types.yml
+  - type: Conventions
+    url: conventions/jellyvision-conventions.yml
+  - type: DataModel
+    url: data-model/jellyvision-data-model.yml
+  - type: Sandbox
+    url: sandbox/jellyvision-sandbox.yml
+  - type: RateLimits
+    url: rate-limits/jellyvision-rate-limits.yml
+  - type: Lifecycle
+    url: lifecycle/jellyvision-lifecycle.yml
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: TrustCenter
+  url: security/jellyvision-trust-center.yml
 - type: Website
-  url: https://www.nasdaqprivatemarket.com/
+  url: https://www.jellyvision.com/
+- type: Documentation
+  url: https://partner-api-docs.myalex.com/
+- type: APIReference
+  url: https://partner-api-docs.myalex.com/
+- type: Blog
+  url: https://www.jellyvision.com/resources/blog/
+- type: Support
+  url: https://www.jellyvision.com/contact-us/
+- type: SignUp
+  url: https://www.jellyvision.com/get-a-demo/
+- type: TermsOfService
+  url: https://www.jellyvision.com/tos/
+- type: PrivacyPolicy
+  url: https://www.jellyvision.com/privacy-policy/
+- type: GitHubOrganization
+  url: https://github.com/jellyvision
+- type: Compliance
+  url: https://www.jellyvision.com/security/
+- type: MCPServer
+  url: mcp/jellyvision-mcp.yml
+- type: LLMsTxt
+  url: llms/jellyvision-llms.txt
+- type: WellKnown
+  url: well-known/jellyvision-well-known.yml
+- type: Packages
+  url: packages/jellyvision-packages.yml
+- type: Conformance
+  url: conformance/jellyvision-conformance.yml
+- type: DomainSecurity
+  url: security/jellyvision-domain-security.yml
+- type: Plans
+  url: plans/jellyvision-plans-pricing.yml
+x-enrichment:
+  date: '2026-08-23'
+  status: enriched
+  artifacts_added: 20
+  pass: local-v1
+x-coverage:
+  state: covered
+  detail: >-
+    Public, unauthenticated API reference found and fully mined at partner-api-docs.myalex.com, plus a
+    live OAuth-protected MCP server and a served llms.txt on the company's own host. The one real gap
+    is that Jellyvision publishes no machine-readable contract: the V1 API Reference is a static
+    Slate-style HTML page, and /openapi.json, /openapi.yaml and /swagger.json all return HTTP 404 on
+    both the docs host and api.myalex.com.
+  evidence:
+  - url: https://partner-api-docs.myalex.com/
+    status: 200
+  - url: https://partner-api-docs.myalex.com/openapi.json
+    status: 404
+  - url: https://www.jellyvision.com/wp-json/mcp/mcp-oauth-server
+    status: 401
+  checked: '2026-08-23'

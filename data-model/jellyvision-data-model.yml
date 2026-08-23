@@ -1,0 +1,306 @@
+generated: '2026-08-23'
+method: derived
+source: https://partner-api-docs.myalex.com/
+derivation_note: >-
+  Derived from the parameter, property and payload tables published in the V1 API Reference. There is
+  no OpenAPI document to read $ref links from, so the entity graph below is reconstructed from the
+  documented request bodies, response bodies and appendix tables only. Every field, type, constraint
+  and enumerated value below appears verbatim in the published reference; nothing is inferred.
+operations:
+- operationId: upsertPartnerUser
+  method: POST
+  path: /api/partner/user
+  summary: Populate or update end-user data. Creates the user if none exists for the supplied natural key.
+  writes: [User]
+- operationId: getPartnerUserSelections
+  method: GET
+  path: /api/partner/user/selections
+  summary: Retrieve the plan selections and contributions the end user made inside ALEX.
+  reads: [Selections, SelectedPlan, Contribution]
+- operationId: createAlexSession
+  method: POST
+  path: /api/partner/session
+  summary: Create an ALEX Session carrying the user's eligible plans, premium tiers and employer contributions.
+  writes: [Session, BenefitGroup, EligiblePlan, Healthfund, Tiers]
+identity:
+  natural_key:
+    fields: [Partner-Id, Partner-Client-Id, Partner-User-Id]
+    location: request headers
+    note: >-
+      The user is addressed by this three-part header key, not by a path or body identifier. There is
+      no Jellyvision-issued user ID a partner supplies; userId is returned, not sent.
+  plan_year_key:
+    field: Product-Key
+    location: request header
+    note: An ID representing the plan year the user is accessing. Issued by Jellyvision.
+entities:
+- name: Partner
+  description: A Jellyvision integration partner, typically a benefits administration or enrollment platform.
+  identified_by: partner_id / Partner-Id (issued by Jellyvision)
+  relationships:
+  - has_many: Customer
+    via: partner_client_id
+- name: Customer
+  description: An employer or client of the partner whose benefits are configured in ALEX.
+  identified_by: partner_client_id / Partner-Client-Id (issued by Jellyvision; may equal partner_id)
+  relationships:
+  - belongs_to: Partner
+    via: partner_id
+  - has_many: User
+    via: partner_user_id
+- name: User
+  description: An end user (employee) of the customer, moving through the ALEX experience.
+  identified_by: partner_user_id / Partner-User-Id (supplied by the partner)
+  returned_id: userId
+  relationships:
+  - belongs_to: Customer
+    via: partner_client_id
+  - has_many: Session
+    via: session_id
+  - has_one: Selections
+  fields:
+  - name: salary
+    type: numeric
+    constraint: '>= 0'
+    editable_after_api_write: false
+  - name: eligiblePay
+    type: numeric
+    constraint: '>= 0'
+    editable_after_api_write: false
+    note: Often equals salary; some benefits require the distinction.
+  - name: postalCode
+    type: string
+    constraint: length 5, 9 or 10
+    note: zip+4 accepted but only the first 5 digits are used.
+    concealable: true
+    editable_after_api_write: true
+  - name: stateProvince
+    type: string
+    constraint: length 2
+    note: GU, PR and VI are accepted in addition to US states.
+    editable_after_api_write: false
+  - name: fullTimeStatus
+    type: boolean
+    editable_after_api_write: false
+  - name: birthDate
+    type: ISO8601 date
+    constraint: must resolve to an age >= 0 and <= 90
+    concealable: false
+  - name: spouseType
+    type: enum
+    values: [spouse, partner, none]
+    concealable: false
+  - name: spouseBirthDate
+    type: ISO8601 date
+    constraint: must resolve to an age >= 0 and <= 90
+    concealable: false
+  optional_fields_on_request:
+  - name: expat
+    type: boolean
+  - name: hireDate
+    type: ISO8601 date
+    constraint: '>= 1990-01-01 and <= today'
+  - name: hoursWorked
+    type: numeric
+    constraint: '>= 0 and <= 168'
+  - name: numChildren
+    type: numeric
+    constraint: '>= 0 and <= 100'
+  external_fields:
+  - name: businessUnit
+    type: string
+    note: Partner-supplied analytics dimension, enabled at Jellyvision's discretion.
+  custom_fields:
+  - name: custom
+    type: array of single-key objects
+    example: '[{"DISC":"OPTIN"},{"POS":"DRIVER"},{"LOC":"CHI101"}]'
+    note: >-
+      Unmapped keys return a warning and are ignored. Custom parameters have no effect unless
+      required to determine eligibility.
+- name: Session
+  description: >-
+    One visit to the ALEX experience by one user. Carries the eligibility and plan data that
+    controls what that user sees. Must be populated before sending the user to ALEX when the partner
+    supplies eligibility or plan information.
+  identified_by: sessionId (returned) / session_id (SAML attribute, partner-generated)
+  relationships:
+  - belongs_to: User
+    via: partner_user_id
+  - has_many: BenefitGroup
+    via: medical / dental / vision / taxSavings
+  response_fields: [userId, newUser, requestId, sessionId, success, warnings, errors]
+- name: BenefitGroup
+  description: >-
+    One of the four top-level benefit objects on a session payload. An empty object means the user is
+    ineligible for that module; OMITTING the object entirely is documented to cause unintended
+    eligibility consequences.
+  variants: [medical, dental, vision, taxSavings]
+  relationships:
+  - has_many: EligiblePlan
+    via: plans
+  fields:
+  - name: deductionsPerYear
+    type: integer
+    note: >-
+      Payroll deductions per year used to spread the annualized premium. Present on medical, dental
+      and vision.
+- name: EligiblePlan
+  description: A plan the user is eligible for, supplied by the partner on session creation.
+  relationships:
+  - belongs_to: BenefitGroup
+  - has_one: Tiers
+    via: premiumTiers
+  - has_one: Healthfund
+    via: healthfund
+    note: medical only; omit if the plan has no healthfund.
+  fields:
+  - name: partnerCode
+    type: string
+    note: Partner-supplied plan code. Can be any non-integer value.
+  tax_savings_variants:
+  - partnerCodeFSA
+  - partnerCodeDCFSA
+  - partnerCodeCommuter
+- name: Healthfund
+  description: Employer contribution attached to a medical plan.
+  relationships:
+  - belongs_to: EligiblePlan
+  - has_one: Tiers
+    via: employerContributionTiers
+  fields:
+  - name: prorated
+    type: boolean
+    note: True if contributions are pro-rated for new hires.
+- name: Tiers
+  description: >-
+    A one-to-ten key object mapping a coverage tier code to an ANNUALIZED dollar amount. The same
+    shape is used for employee premiums and employer healthfund contributions.
+  fields:
+  - name: tierCoverageTypeId
+    type: integer
+    values_ref: tier_coverage_types
+  - name: '<tier code>'
+    type: numeric
+    note: Keys are the tier codes 10-90; only configured tiers need be submitted.
+- name: Selections
+  description: What the user actually chose inside ALEX. Read-only.
+  relationships:
+  - belongs_to: User
+  - has_many: SelectedPlan
+    via: plans
+  - has_many: Contribution
+    via: contributions
+  response_fields: [userId, requestId, success, warnings, errors, plans, contributions]
+- name: SelectedPlan
+  description: One plan the user selected or waived.
+  relationships:
+  - belongs_to: Selections
+  fields:
+  - name: name
+    type: string
+    note: Plan name as communicated to employees.
+  - name: alexCode
+    type: integer
+    note: Jellyvision-supplied plan code.
+  - name: partnerCode
+    type: array of string
+    note: Partner-supplied codes for the plan. Always an array, even for a single code.
+  - name: planType
+    type: enum
+    values: [medical, dental, vision]
+  - name: premiumTier
+    type: integer
+    note: ALEX internal premium tier code.
+  - name: premiumTierDescription
+    type: string
+    note: Friendly description of the chosen tier, e.g. "EE + Spouse + 4 or more Children".
+  - name: waived
+    type: boolean
+    note: True if the user waived medical, dental or vision coverage.
+- name: Contribution
+  description: A tax-advantaged account contribution the user elected.
+  relationships:
+  - belongs_to: Selections
+  fields:
+  - name: type
+    type: enum
+    values: [hsa, lfsa, fsa, dcfsa, commuter transit fsa, commuter parking fsa]
+  - name: annualContribution
+    type: numeric
+id_domains:
+- id: alexCode
+  owner: Jellyvision
+  type: integer
+  direction: returned to partner
+- id: partnerCode
+  owner: partner
+  type: string (non-integer)
+  direction: sent by partner, echoed back as an array
+- id: userId
+  owner: Jellyvision
+  direction: returned
+- id: sessionId
+  owner: Jellyvision
+  direction: returned
+- id: requestId
+  owner: Jellyvision
+  direction: returned on every response
+enumerations:
+  tier_coverage_types:
+  - id: 1
+    name: Individual + Family
+  - id: 2
+    name: EE, EE + 1, EE + 2, Family
+  - id: 3
+    name: EE, EE + Spouse, EE + Child(ren), Family
+  - id: 4
+    name: Per Individual ($X/person)
+    constraint: Employer contributions only; cannot be used for premiums.
+  - id: 5
+    name: 7 Tiers
+  - id: 6
+    name: 10 Tiers
+  - id: 7
+    name: No Tiers (Flat Amount)
+    aka: EE Only
+  tier_codes_10_tier:
+    '10': EE
+    '20': EE + Spouse
+    '30': EE + 1 Child
+    '40': EE + 2 Children
+    '50': EE + 3 Children
+    '55': EE + 4 or more Children
+    '60': EE + Spouse + 1 Child
+    '70': EE + Spouse + 2 Children
+    '80': EE + Spouse + 3 Children
+    '90': EE + Spouse + 4 or more Children
+  tier_codes_7_tier:
+    '10': EE
+    '20': EE + Spouse
+    '30': EE + 1 Child
+    '40': EE + 2 Children
+    '50': EE + 3 or more Children
+    '60': EE + Spouse + 1 Child
+    '70': EE + Spouse + 2 or more Children
+  tier_codes_type_3:
+    '10': EE
+    '20': EE + Spouse
+    '30': EE + Child(ren)
+    '70': Family
+  tier_codes_type_2:
+    '10': EE
+    '20': EE + 1
+    '40': EE + 2
+    '70': Family
+  tier_codes_type_1:
+    '10': EE
+    '20': EE + Family
+  tier_codes_type_7:
+    '10': EE
+  tier_codes_type_4:
+    '10': EE
+privacy_design_note: >-
+  The model deliberately exposes coverage TIERS rather than dependent counts — the docs state that
+  "coverage tiers and not the exact number of covered dependents will be supplied". Combined with the
+  statement that any parameter not needed for eligibility or recommendation will not be used, the
+  data model is scoped narrowly on purpose for a HIPAA-relevant surface.

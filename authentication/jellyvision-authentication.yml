@@ -1,0 +1,107 @@
+generated: '2026-08-23'
+method: searched
+source: https://partner-api-docs.myalex.com/
+docs: https://partner-api-docs.myalex.com/
+summary: >-
+  The ALEX Partner Integration API uses OAuth 2.0 client credentials against a Jellyvision Auth0
+  tenant to mint a short-lived bearer JWT, then requires four partner-identity headers plus a product
+  key on every call. A separate SAML 2.0 IdP-initiated single sign-on flow carries the end user into
+  the ALEX experience itself. There is no API-key, basic-auth or mTLS option documented.
+schemes:
+- id: oauth2_client_credentials
+  type: oauth2
+  flow: clientCredentials
+  in: header
+  scheme: bearer
+  bearer_format: JWT
+  token_endpoints:
+  - environment: production
+    url: https://login.myalex.com/oauth/token
+  - environment: pre-production
+    url: https://login.jellydevs.com/oauth/token
+  audience: https://integrated-partner.myalex.com
+  token_request_parameters:
+  - name: client_id
+    required: true
+    note: Provided by Jellyvision.
+  - name: client_secret
+    required: true
+    note: Provided by Jellyvision.
+  - name: audience
+    required: true
+    note: Provided by Jellyvision; documented value is https://integrated-partner.myalex.com.
+  - name: grant_type
+    required: true
+    note: Always client_credentials.
+  token_lifetime_seconds: 86400
+  token_lifetime_note: >-
+    Documented expires_in is 86400 (24 hours). The docs require partners to cache the token and
+    refresh it every 24 hours or on a 401, and warn that requesting a token per API call will
+    trigger rate limiting.
+  scopes:
+  - rw:self
+  credentials_issued_per_environment: 2
+  credentials_note: Two API keys are issued, one per environment.
+- id: saml2_sso
+  type: saml2
+  profile: IdP-initiated SSO
+  note: >-
+    SP-initiated authentication can be supported on request and at Jellyvision's discretion.
+  signing:
+    certificate: x509 RSA-SHA256
+    key_size_bits: 4096
+    formats:
+    - PEM
+    - CER
+  attributes:
+  - name: partner_id
+    supplied_by: Jellyvision
+    description: An ID unique to each partner.
+  - name: partner_client_id
+    supplied_by: Jellyvision
+    description: An ID unique to each customer; may equal partner_id.
+  - name: partner_user_id
+    supplied_by: partner
+    description: An ID unique to each end user associated with a given partner_id.
+  - name: product_key
+    supplied_by: Jellyvision
+    description: An ID representing the plan year the user is accessing.
+  - name: session_id
+    supplied_by: partner
+    description: A unique visit to the ALEX experience, per user.
+  - name: target
+    supplied_by: partner
+    description: The ALEX environment (https://www.myalex.com or https://qa.myalex.com).
+required_request_headers:
+- name: Authorization
+  value_form: 'Bearer <jwt>'
+  required: true
+- name: Partner-Id
+  required: true
+  description: An ID unique to each partner.
+- name: Partner-Client-Id
+  required: true
+  description: An ID unique to each customer.
+- name: Partner-User-Id
+  required: true
+  description: An ID unique to each end user.
+- name: Product-Key
+  required: true
+  description: Plan-year key supplied by Jellyvision.
+- name: Accept-Version
+  required: false
+  default: v1
+  description: API version selector; v1 when omitted.
+identity_providers:
+  production:
+    issuer: https://login.myalex.com/
+    platform: Auth0
+    discovery: /.well-known/openid-configuration (HTTP 200, saved)
+  pre_production:
+    issuer: https://login.jellydevs.com/
+    platform: Auth0
+    discovery: /.well-known/openid-configuration (HTTP 200, saved)
+credential_issuance: >-
+  Client ID, client secret, audience, Partner-Id, Partner-Client-Id and Product-Key are all issued by
+  Jellyvision as part of partner onboarding. There is no self-service signup for the Partner
+  Integration API; the public entry point is https://www.jellyvision.com/get-a-demo/.

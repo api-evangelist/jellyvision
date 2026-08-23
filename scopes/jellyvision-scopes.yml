@@ -1,0 +1,50 @@
+generated: '2026-08-23'
+method: searched
+source: https://partner-api-docs.myalex.com/
+docs: https://partner-api-docs.myalex.com/
+note: >-
+  Jellyvision does not publish a scope/permission reference page. The single Partner Integration API
+  scope below is read from the decoded JWT access-token example printed in the authentication section
+  of the public API reference. The second scope is read from the RFC 9728 protected-resource metadata
+  served at https://www.jellyvision.com/.well-known/oauth-protected-resource and applies to the MCP
+  server on the marketing site, not to the Partner Integration API.
+flows:
+- flow: clientCredentials
+  token_url: https://login.myalex.com/oauth/token
+  audience: https://integrated-partner.myalex.com
+  scopes:
+  - name: 'rw:self'
+    description: >-
+      Read and write the partner's own end-user records and ALEX Sessions. This is the only scope
+      shown in the documented decoded access token; Jellyvision does not publish a broader scope
+      catalog, and scope selection is not partner-configurable.
+    source: decoded access_token example, Authentication section of the V1 API Reference
+- flow: authorizationCode
+  resource: https://www.jellyvision.com/wp-json/mcp/mcp-oauth-server
+  authorization_server: https://www.jellyvision.com
+  scopes:
+  - name: mcp
+    description: >-
+      Access the OAuth-protected Model Context Protocol server published on www.jellyvision.com.
+      Advertised in both the authorization-server and protected-resource metadata documents.
+    source: https://www.jellyvision.com/.well-known/oauth-protected-resource
+oidc_tenant_scopes:
+  note: >-
+    login.myalex.com is an Auth0 tenant whose OIDC discovery document advertises the standard Auth0
+    scope set. These are tenant defaults, not Partner Integration API permissions, and are recorded
+    here only so they are not mistaken for a published product scope catalog.
+  scopes:
+  - openid
+  - profile
+  - offline_access
+  - name
+  - given_name
+  - family_name
+  - nickname
+  - email
+  - email_verified
+  - picture
+  - created_at
+  - identities
+  - phone
+  - address

@@ -1,0 +1,39 @@
+generated: '2026-08-23'
+method: searched
+source: https://trust.jellyvision.com/
+url: https://trust.jellyvision.com/
+status: 200
+secondary_source: https://www.jellyvision.com/security/
+certifications:
+- name: SOC 2
+  source: https://www.jellyvision.com/security/
+- name: HIPAA
+  source: https://www.jellyvision.com/security/
+readable: false
+readability_note: >-
+  A real, provider-operated trust center is served at https://trust.jellyvision.com/ (HTTP 200,
+  ~92KB). It is an Angular single-page application — the served HTML loads
+  apps/trustcenter/main.086bf7365dda6143.js plus polyfills and a stylesheet, and its entire static
+  body text is the two words "Trust Center". No certification name, framework, subprocessor list,
+  document index, contact address or vendor marker (SafeBase / Vanta / Drata / Conveyor / Whistic /
+  Secureframe) survives without JavaScript execution, and the JS bundle exposes no readable API base
+  to fetch the underlying data from. The certifications recorded above are therefore read from the
+  statically rendered Data Security & Privacy Commitment page, not from the trust center itself.
+  For a machine reader, this trust center is effectively empty.
+audits:
+  internal_security_audits: true
+  source: https://www.jellyvision.com/security/
+  note: >-
+    The security page cites internal security audits and over a decade of healthcare technology
+    experience. No third-party penetration test report, audit letter or bridge letter is published
+    at a public URL.
+evidence:
+- url: https://trust.jellyvision.com/
+  status: 200
+  note: Angular SPA shell; body text is "Trust Center" only
+- url: https://trust.jellyvision.com/apps/trustcenter/main.086bf7365dda6143.js
+  status: 200
+  note: 141664 bytes; no https API base and no trust-platform vendor string found
+- url: https://www.jellyvision.com/security/
+  status: 200
+  note: Data Security & Privacy Commitment; names SOC2 and HIPAA

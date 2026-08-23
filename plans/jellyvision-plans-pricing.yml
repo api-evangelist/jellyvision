@@ -1,0 +1,28 @@
+generated: '2026-08-23'
+method: searched
+source: https://www.jellyvision.com/
+plan_count: 0
+pricing_page_published: false
+note: >-
+  Jellyvision publishes no pricing page and no plan tiers. The page sitemap
+  (https://www.jellyvision.com/page-sitemap.xml, HTTP 200) enumerates every published page on the
+  marketing site and contains no /pricing/ entry; a direct probe of https://www.jellyvision.com/pricing/
+  returned HTTP 404 with the site's "Page not found" template. ALEX is sold as an enterprise
+  subscription through a sales motion — the published entry points are a demo request
+  (https://www.jellyvision.com/get-a-demo/) and an ROI calculator
+  (https://www.jellyvision.com/roi-calculator/) rather than a self-service signup. Commercial terms
+  live in the ALEX Terms of Service (https://www.jellyvision.com/tos/) and are negotiated per customer.
+  The ALEX Partner Integration API is not separately priced or metered in any published material; it
+  is an entitlement of a partner agreement, and credentials are issued by Jellyvision during
+  onboarding.
+plans: []
+evidence:
+- url: https://www.jellyvision.com/pricing/
+  status: 404
+- url: https://www.jellyvision.com/page-sitemap.xml
+  status: 200
+  note: 29 published pages, none of them a pricing page
+- url: https://www.jellyvision.com/get-a-demo/
+  status: 200
+  note: the published commercial entry point
+sales_model: enterprise-contact-sales

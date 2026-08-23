@@ -1,0 +1,93 @@
+generated: '2026-08-23'
+method: searched
+source: https://partner-api-docs.myalex.com/
+docs: https://partner-api-docs.myalex.com/
+format: custom
+format_note: >-
+  Not RFC 9457. Errors are returned as application/json in the same envelope as success responses —
+  the HTTP status carries the class and the envelope carries a string array of human-readable
+  messages. There is no type URI, no machine-readable error code, and no per-field error object.
+envelope:
+  media_type: application/json
+  fields:
+  - name: userId
+    type: string|null
+    description: Echoes the end-user identifier; null when the request failed before user resolution.
+  - name: requestId
+    type: string
+    description: Per-request identifier, present on success and failure. The tracing handle to quote to Jellyvision support.
+  - name: success
+    type: boolean
+    description: false on an unrecoverable error.
+  - name: warnings
+    type: array|null
+    description: >-
+      Non-fatal issues. The API continues processing the request using the remaining valid data, and
+      the end user is simply prompted to answer the corresponding question inside ALEX. Entries are
+      single-key objects keyed on the offending parameter, e.g. {"salary": "provided value is not a number"}.
+  - name: errors
+    type: array|null
+    description: >-
+      Fatal issues. When populated the API halts, no user or plan data is set, and nothing is
+      returned. Jellyvision logs these server-side. Entries are plain strings.
+warning_vs_error: >-
+  A warning is recoverable and the request still completes; an error is terminal and the request is
+  abandoned. Callers are told to implement user-friendly handling for the error case.
+problem_types:
+- status: 400
+  title: Bad Request
+  detail: The request was made in an invalid format.
+  remediation: Validate the JSON body and header set against the parameter tables before retrying.
+- status: 401
+  title: Unauthorized
+  detail: The API key is not recognized or not supplied.
+  observed_error_strings:
+  - Unauthorized
+  remediation: >-
+    Request a new access token from the environment's /oauth/token endpoint and retry. The docs make
+    this an explicit guardrail — automatically re-mint on 401 rather than minting per call.
+- status: 403
+  title: Forbidden
+  detail: You are not authorized to make changes on behalf of the provided client-id.
+  observed_error_strings:
+  - provided client-id is unknown
+  - Either this customer does not exist or you are not authorized to create a session for this customer
+  - Either this user does not exist or you are not authorized to retrieve data for this user
+  remediation: Confirm the Partner-Client-Id issued by Jellyvision matches the customer being acted on.
+- status: 404
+  title: Not Found
+  detail: The endpoint or client could not be found.
+  remediation: Check the path and the Partner-Client-Id.
+- status: 405
+  title: Method Not Allowed
+  detail: The wrong HTTP verb was used to access the resource.
+  remediation: POST to /api/partner/user and /api/partner/session; GET /api/partner/user/selections.
+- status: 500
+  title: Internal Server Error
+  detail: >-
+    We had a problem with our server. Try again later. The docs state Jellyvision does not expect this
+    and is alerted immediately when it happens.
+  remediation: Retry with backoff; escalate with the requestId.
+- status: 503
+  title: Service Unavailable
+  detail: >-
+    The server has reached capacity. Please try again shortly. The docs state Jellyvision does not
+    expect this and is alerted immediately when it happens.
+  remediation: Retry with backoff; escalate with the requestId.
+success_statuses:
+- status: 200
+  title: OK
+  detail: We got your request and responded with some data.
+- status: 201
+  title: Created
+  detail: We got your request and the resource has been created or updated.
+observed_validation_messages:
+- message: provided value is not a number
+  class: warning
+  applies_to: salary and other numeric parameters
+- message: attr key ATR could not be mapped to known property
+  class: warning
+  applies_to: custom[] parameters that do not map to a configured property
+- message: no user-id was provided
+  class: error
+  applies_to: missing Partner-User-Id header

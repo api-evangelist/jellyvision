@@ -1,0 +1,46 @@
+generated: '2026-08-23'
+method: searched
+source: https://partner-api-docs.myalex.com/
+docs: https://partner-api-docs.myalex.com/
+limit_count: 0
+summary: >-
+  Rate limiting exists and is acknowledged in the docs, but no number is published. The V1 API
+  Reference states that requesting an access token with each API call "will cause rate limiting
+  errors" — confirming a limit is enforced on the Auth0 token endpoint — without stating the
+  threshold, the window, the scope it applies to, or the status code and headers returned on
+  exhaustion. No limit of any kind is published for the three Partner Integration API endpoints
+  themselves.
+rate_limits: []
+documented_constraints:
+- scope: token endpoint
+  endpoint: /oauth/token (login.myalex.com and login.jellydevs.com)
+  window: not published
+  limit: not published
+  burst: not published
+  statement: >-
+    "If an access token is requested with each API call, rate limiting errors will occur."
+  source_section: Authentication > Guardrails
+- scope: token lifetime
+  value: 86400 seconds (24 hours)
+  statement: >-
+    Documented expires_in is 86400. The published guardrail is to cache the token and re-mint every
+    24 hours or on a 401 — this token-reuse requirement is effectively the published rate-limit
+    mitigation.
+response_headers:
+  published: false
+  observed: false
+  headers: []
+  detail: >-
+    No RateLimit-Limit / RateLimit-Remaining / RateLimit-Reset (RFC 9331 style), no legacy
+    X-RateLimit-* set, and no Retry-After is documented anywhere in the reference. The HTTP status
+    table published in the appendix lists 200, 201, 400, 401, 403, 404, 405, 500 and 503 — 429 Too
+    Many Requests is not among them, so the status returned on exhaustion is unstated.
+exhaustion_status_code: not published
+probe_note: >-
+  Not probed live. Both the token endpoints and the three API endpoints require credentials issued by
+  Jellyvision during partner onboarding, so no unauthenticated request can observe a runtime
+  rate-limit header without provisioned access.
+agent_impact: >-
+  An agent integrating this API cannot compute a safe call rate or implement header-driven backoff.
+  The only actionable runtime signal is the documented 401-then-re-mint guardrail; everything else
+  requires retry-with-backoff on 503 and escalation using the response requestId.

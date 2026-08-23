@@ -1,0 +1,72 @@
+generated: '2026-08-23'
+method: searched
+source: https://partner-api-docs.myalex.com/
+docs: https://partner-api-docs.myalex.com/
+versioning:
+  scheme: header-negotiated major version
+  header: Accept-Version
+  current_version: v1
+  default_when_omitted: v1
+  published_versions:
+  - v1
+  version_history_published: false
+docs_freshness:
+  last_updated_stamp: '2026-08-20T20:29:19Z'
+  source: >-
+    The V1 API Reference renders a machine-set "This document was last updated on" timestamp at the
+    top of the page. It is a build stamp, not a changelog — it records when the docs were regenerated,
+    not what changed.
+  copyright_notice: "© 2002-2024 The Jellyvision Lab, Inc."
+change_log:
+  published: false
+  detail: >-
+    No dated changelog, release notes page or version history is published for the ALEX Partner
+    Integration API. Product-level announcements appear as marketing posts under
+    https://www.jellyvision.com/resources/category/whats-new-with-alex/ but carry no API-level
+    version, breaking-change or migration information.
+deprecation_policy:
+  published: false
+  sunset_header: not documented
+  deprecation_header: not documented
+  rfc8594_support: unknown
+  deprecated_operations: []
+  detail: >-
+    No deprecation policy, notice period or sunset commitment is published. Because versioning is
+    header-negotiated with an implicit v1 default, a client that omits Accept-Version would silently
+    follow whatever Jellyvision designates as the default version.
+status_page:
+  published: false
+  url: https://status.jellyvision.com/
+  observed_status: 200
+  gate: >-
+    Reachable but not public. https://status.jellyvision.com/ immediately 302s into
+    /auth/dex/auth/saml and posts a SAMLRequest to
+    https://jellyvision.okta.com/app/jellyvision_jellyvisionstatuspage_1/.../sso/saml — an Okta
+    SSO wall. A partner or integrator with no Jellyvision Okta identity cannot read incident or
+    uptime history, so no StatusPage pointer is emitted; the surface exists but is not a published
+    one.
+  checked: '2026-08-23'
+sla:
+  published: false
+  detail: >-
+    No public SLA, uptime target or support-response commitment for the Partner Integration API.
+    The general ALEX Terms of Service (https://www.jellyvision.com/tos/) and ALEX Legal Terms
+    (https://www.jellyvision.com/legalterms/) are the only published contractual documents.
+operational_guardrails:
+  source: Authentication > Guardrails section of the V1 API Reference
+  note: Jellyvision states it cannot guarantee ALEX performance without these client behaviors.
+  rules:
+  - Automatically request a new access token when an API call receives a 401 Unauthorized response.
+  - Request a new access token every 24 hours.
+  - Do not request an access token with each API call; doing so will cause rate limiting errors.
+environments:
+- name: Production
+  api_url: https://www.myalex.com
+  saml_target: https://www.myalex.com
+  token_endpoint: https://login.myalex.com/oauth/token
+  description: Live production environment where a customer's final release lives.
+- name: Pre-production
+  api_url: https://qa.myalex.com
+  saml_target: https://qa.myalex.com
+  token_endpoint: https://login.jellydevs.com/oauth/token
+  description: Pre-production environment used for initial testing and development.
