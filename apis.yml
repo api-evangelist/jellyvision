@@ -12,6 +12,17 @@ description: >-
   Authentication is OAuth 2.0 client credentials against an Auth0 tenant plus SAML 2.0 IdP-initiated
   single sign-on for the end-user experience.
 url: https://raw.githubusercontent.com/api-evangelist/jellyvision/refs/heads/main/apis.yml
+deliveryModel:
+  model: saas
+  open_source: false
+  commercial: true
+  callable_host: false
+  label: Hosted service · you call their endpoint
+  confidence: medium
+  source:
+  - pricing
+  generated: '2026-08-28'
+  method: derived
 image: https://www.jellyvision.com/wp-content/uploads/2023/12/Jellyvision_Generic.jpg
 x-type: company
 x-source: harvest:secondary-market
