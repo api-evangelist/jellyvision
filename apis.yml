@@ -44,7 +44,7 @@ x-type: company
 x-source: harvest:secondary-market
 specificationVersion: '0.20'
 created: '2026-08-23'
-modified: '2026-08-23'
+modified: '2026-10-06'
 x-docs-platform: slate
 x-docs-platform-confidence: medium
 x-docs-platform-checked: 2026-10-03
@@ -117,6 +117,8 @@ maintainers:
 - FN: APIs.json
   email: info@apis.io
 common:
+- url: https://www.jellyvision.com/resources/blog/feed/
+  type: BlogRSS
 - type: TrustCenter
   url: security/jellyvision-trust-center.yml
 - type: Website
