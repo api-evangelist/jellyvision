@@ -2,6 +2,20 @@
   "repo": "jellyvision",
   "feeds": [
     {
+      "source": "https://www.jellyvision.com/resources/blog/feed/",
+      "feed_url": "https://www.jellyvision.com/resources/blog/feed/",
+      "title": "",
+      "saved": 5,
+      "method": "feed"
+    },
+    {
+      "source": "https://www.jellyvision.com/resources/blog/",
+      "feed_url": "https://www.jellyvision.com/resources/blog/feed/",
+      "title": "",
+      "saved": 0,
+      "method": "discovered"
+    },
+    {
       "source": "https://partner-api-docs.myalex.com/",
       "feed_url": "https://partner-api-docs.myalex.com/",
       "title": "",
@@ -9,6 +23,6 @@
       "method": "none"
     }
   ],
-  "post_count": 0,
-  "fetched": "2026-10-03T12:30:02Z"
+  "post_count": 5,
+  "fetched": "2026-10-10T13:15:00Z"
 }
